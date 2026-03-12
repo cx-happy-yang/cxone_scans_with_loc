@@ -43,9 +43,8 @@ configuration = Configuration(
     iam_base_url="https://sng.iam.checkmarx.net",  # Replace with your IAM URL
     token_url="https://sng.iam.checkmarx.net/auth/realms/happy/protocol/openid-connect/token",  # Token URL
     tenant_name="happy",  # Replace with your tenant name
-    grant_type="client_credentials",
-    client_id="checkmarx-python-sdk",  # Replace with your client ID
-    client_secret="***"  # Replace with your client secret
+    grant_type="refresh_token",
+    api_key="***",  # Replace with your API key
 )
 ```
 
@@ -125,7 +124,7 @@ After running, the script will display statistics such as:
 
 ### Common Issues
 
-1. **Authentication errors**: Check your client ID, client secret, and token URL
+1. **Authentication errors**: Check your api_key, and token URL
 2. **API rate limits**: The script handles batching to avoid rate limits
 3. **Timeouts**: Increase the `timeout` parameter in the Configuration if needed
 

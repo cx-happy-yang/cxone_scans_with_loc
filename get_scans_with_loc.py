@@ -138,56 +138,52 @@ def main():
     print("Starting to get all scans...")
     
     # Create Configuration object
-    configuration = Configuration(
-        server_base_url="https://sng.ast.checkmarx.net",  # Replace with your CxOne server URL
-        iam_base_url="https://sng.iam.checkmarx.net",  # Replace with your IAM URL
-        token_url="https://sng.iam.checkmarx.net/auth/realms/happy/protocol/openid-connect/token",  # Token URL
-        tenant_name="happy",  # Replace with your tenant name
-        grant_type="client_credentials",
-        client_id="checkmarx-python-sdk",  # Replace with your client ID
-        client_secret="***"  # Replace with your client secret
-    )
+    config_list = [
+        Configuration(
+            server_base_url="https://sng.ast.checkmarx.net",  # Replace with your CxOne server URL
+            iam_base_url="https://sng.iam.checkmarx.net",  # Replace with your IAM URL
+            token_url="https://sng.iam.checkmarx.net/auth/realms/happy/protocol/openid-connect/token",  # Token URL
+            tenant_name="happy",  # Replace with your tenant name
+            grant_type="refresh_token",
+            api_key="***",  # Replace with your API key
+        ),
+    ]
     
-    # Put configuration in a list
-    config_list = [configuration]
-    
-    # Use the first configuration from the list
-    configuration = config_list[0]
-    
-    # Create api_client
-    api_client = ApiClient(configuration=configuration)
-    
-    # Create API instances with api_client
-    scans_api = ScansAPI(api_client=api_client)
-    metadata_api = SastScanMetadataServiceAPI(api_client=api_client)
-    
-    all_scans = get_all_scans(scans_api)
-    print(f"Total {len(all_scans)} scans fetched")
+    for config in config_list:
+        # Create api_client
+        api_client = ApiClient(configuration=config)
+        
+        # Create API instances with api_client
+        scans_api = ScansAPI(api_client=api_client)
+        metadata_api = SastScanMetadataServiceAPI(api_client=api_client)
+        
+        all_scans = get_all_scans(scans_api)
+        print(f"Total {len(all_scans)} scans fetched")
 
-    if all_scans:
-        print("Starting to get LOC information...")
-        all_scans = add_loc_to_scans(all_scans, metadata_api)
+        if all_scans:
+            print("Starting to get LOC information...")
+            all_scans = add_loc_to_scans(all_scans, metadata_api)
 
-        # Save to JSON file
-        json_output_file = "scans_with_loc.json"
-        with open(json_output_file, "w", encoding="utf-8") as f:
-            json.dump(all_scans, f, indent=2, ensure_ascii=False)
-        print(f"Data saved to {json_output_file}")
+            # Save to JSON file
+            json_output_file = "scans_with_loc.json"
+            with open(json_output_file, "w", encoding="utf-8") as f:
+                json.dump(all_scans, f, indent=2, ensure_ascii=False)
+            print(f"Data saved to {json_output_file}")
 
-        # Save to CSV file (excluding metadata column)
-        csv_output_file = "scans_with_loc.csv"
-        save_to_csv(all_scans, csv_output_file)
+            # Save to CSV file (excluding metadata column)
+            csv_output_file = "scans_with_loc.csv"
+            save_to_csv(all_scans, csv_output_file)
 
-        # Print statistics
-        scans_with_loc = [s for s in all_scans if s["loc"] is not None]
-        print(f"\nStatistics:")
-        print(f"  - Total scans: {len(all_scans)}")
-        print(f"  - Scans with LOC info: {len(scans_with_loc)}")
-        if scans_with_loc:
-            total_loc = sum(s["loc"] for s in scans_with_loc)
-            print(f"  - Total lines of code (LOC): {total_loc:,}")
-    else:
-        print("No scans fetched")
+            # Print statistics
+            scans_with_loc = [s for s in all_scans if s["loc"] is not None]
+            print(f"\nStatistics:")
+            print(f"  - Total scans: {len(all_scans)}")
+            print(f"  - Scans with LOC info: {len(scans_with_loc)}")
+            if scans_with_loc:
+                total_loc = sum(s["loc"] for s in scans_with_loc)
+                print(f"  - Total lines of code (LOC): {total_loc:,}")
+        else:
+            print("No scans fetched")
 
 
 if __name__ == "__main__":
