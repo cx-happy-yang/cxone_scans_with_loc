@@ -145,7 +145,7 @@ def main():
         tenant_name="happy",  # Replace with your tenant name
         grant_type="client_credentials",
         client_id="checkmarx-python-sdk",  # Replace with your client ID
-        client_secret="KLRGip0NDlJ8M4eEql9BrSfKxMffayFj"  # Replace with your client secret
+        client_secret="***"  # Replace with your client secret
     )
     
     # Put configuration in a list
