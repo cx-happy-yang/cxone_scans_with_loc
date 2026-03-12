@@ -6,7 +6,7 @@ This project retrieves scan information from Checkmarx CxOne, including Lines of
 
 - Python 3.9 or higher
 - Checkmarx CxOne account with API access
-- Client ID and Client Secret for CxOne API authentication
+- API key for CxOne API authentication
 
 ## Installation
 
