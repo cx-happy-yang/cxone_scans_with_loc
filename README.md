@@ -12,8 +12,8 @@ This project retrieves scan information from Checkmarx CxOne, including Lines of
 
 1. **Clone the repository** (or create the project directory):
    ```bash
-   mkdir -p E:\github.com\HappyY19\cxone_scans_with_loc
-   cd E:\github.com\HappyY19\cxone_scans_with_loc
+   git clone https://github.com/cx-happy-yang/cxone_scans_with_loc.git
+   cd cxone_scans_with_loc
    ```
 
 2. **Create and activate virtual environment**:
