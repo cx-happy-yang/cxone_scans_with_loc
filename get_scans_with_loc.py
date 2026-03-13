@@ -23,7 +23,7 @@ def get_all_scans(scans_api):
 
         for scan in scans_collection.scans:
             scan_dict = {
-                "id": scan.id,
+                "scan_id": scan.id,
                 "status": scan.status,
                 "project_id": scan.project_id,
                 "project_name": scan.project_name,
@@ -69,7 +69,7 @@ def add_loc_to_scans(scans, metadata_api):
     batch_size = 20
     for i in range(0, len(sast_scans), batch_size):
         batch_scans = sast_scans[i:i + batch_size]
-        scan_ids = [scan["id"] for scan in batch_scans]
+        scan_ids = [scan["scan_id"] for scan in batch_scans]
 
         print(f"Getting LOC information for scans {i + 1} to {i + len(batch_scans)}")
 
@@ -85,19 +85,19 @@ def add_loc_to_scans(scans, metadata_api):
 
             # Update scans data
             for scan in batch_scans:
-                scan["loc"] = loc_map.get(scan["id"])
-                scan["file_count"] = file_count_map.get(scan["id"])
+                scan["loc"] = loc_map.get(scan["scan_id"])
+                scan["file_count"] = file_count_map.get(scan["scan_id"])
 
         except Exception as e:
             print(f"Error getting metadata: {e}")
             # If error, try to get one by one
             for scan in batch_scans:
                 try:
-                    scan_info = metadata_api.get_metadata_of_scan(scan_id=scan["id"])
+                    scan_info = metadata_api.get_metadata_of_scan(scan_id=scan["scan_id"])
                     scan["loc"] = scan_info.loc
                     scan["file_count"] = scan_info.file_count
                 except Exception as e2:
-                    print(f"Error getting metadata for scan {scan['id']}: {e2}")
+                    print(f"Error getting metadata for scan {scan['scan_id']}: {e2}")
                     scan["loc"] = None
                     scan["file_count"] = None
 
@@ -136,17 +136,23 @@ def save_to_csv(scans, output_file="scans_with_loc.csv"):
 
 def main():
     print("Starting to get all scans...")
-    
+    tenant_list = [
+        {
+            "tenant_name": "happy",
+            "api_key": "***",
+        },
+    ]
     # Create Configuration object
+
     config_list = [
         Configuration(
             server_base_url="https://sng.ast.checkmarx.net",  # Replace with your CxOne server URL
             iam_base_url="https://sng.iam.checkmarx.net",  # Replace with your IAM URL
-            token_url="https://sng.iam.checkmarx.net/auth/realms/happy/protocol/openid-connect/token",  # Token URL
-            tenant_name="happy",  # Replace with your tenant name
+            token_url=f"https://sng.iam.checkmarx.net/auth/realms/{tenant.get('tenant_name')}/protocol/openid-connect/token",  # Token URL
+            tenant_name=tenant.get('tenant_name'),  # Replace with your tenant name
             grant_type="refresh_token",
-            api_key="***",  # Replace with your API key
-        ),
+            api_key=tenant.get('api_key'),  # Replace with your API key
+        ) for tenant in tenant_list
     ]
     
     for config in config_list:
@@ -165,7 +171,7 @@ def main():
             all_scans = add_loc_to_scans(all_scans, metadata_api)
 
             # Get tenant name from configuration
-            tenant_name = configuration.tenant_name
+            tenant_name = config.tenant_name
             
             # Save to JSON file
             json_output_file = f"scans_with_loc_{tenant_name}.json"
