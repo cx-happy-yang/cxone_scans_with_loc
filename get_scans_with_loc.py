@@ -164,14 +164,17 @@ def main():
             print("Starting to get LOC information...")
             all_scans = add_loc_to_scans(all_scans, metadata_api)
 
+            # Get tenant name from configuration
+            tenant_name = configuration.tenant_name
+            
             # Save to JSON file
-            json_output_file = "scans_with_loc.json"
+            json_output_file = f"scans_with_loc_{tenant_name}.json"
             with open(json_output_file, "w", encoding="utf-8") as f:
                 json.dump(all_scans, f, indent=2, ensure_ascii=False)
             print(f"Data saved to {json_output_file}")
 
             # Save to CSV file (excluding metadata column)
-            csv_output_file = "scans_with_loc.csv"
+            csv_output_file = f"scans_with_loc_{tenant_name}.csv"
             save_to_csv(all_scans, csv_output_file)
 
             # Print statistics
